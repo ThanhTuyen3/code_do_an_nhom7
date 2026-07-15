@@ -1,17 +1,18 @@
 {
-  "dependencies": {
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "path-to-regexp": "^6.3.0",
-    "pg": "^8.22.0"
-  },
   "name": "doan_code",
   "version": "1.0.0",
   "description": "",
   "main": "db.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "build": "npm install",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "path-to-regexp": "^8.4.2",
+    "pg": "^8.22.0"
   },
   "keywords": [],
   "author": "",
