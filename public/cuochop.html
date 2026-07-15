@@ -1309,7 +1309,11 @@
                 const response = await fetch('/get-meetings');
                 const data = await response.json();
                 if (response.ok) {
-                    meetings = data;
+                    // Gắn organizerIsMe dựa trên email đăng nhập
+                    meetings = data.map(m => ({
+                        ...m,
+                        organizerIsMe: m.organizerEmail === currentUserProfile.email
+                    }));
                     renderCalendarEvents();
                     renderMeetingList();
                 } else {
