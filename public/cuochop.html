@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YETI MECX - Hệ thống quản lý cuộc họp</title>
+    <style>
+        /* ================= BASE STYLES ================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        /* ================= 1. TRANG ĐĂNG NHẬP / QUÊN MẬT KHẨU / CẬP NHẬT THÔNG TIN ================= */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #eef2f7;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .login-card .logo {
+            width: 60px;
+            margin-bottom: 15px;
+        }
+
+        .login-card h2 {
+            color: #0b1a30;
+            font-size: 22px;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .profile-layout {
+            display: flex;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .profile-main-fields {
+            flex: 1;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .form-group > label > span {
+            color: red;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #0061ff;
+        }
+
+        .avatar-upload-container {
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-dropzone {
+            width: 100%;
+            height: 200px;
+            border: 1px dashed #ced4da;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-dropzone:hover {
+            border-color: #0061ff;
+            background: #f8faff;
+        }
+
+        .avatar-dropzone .upload-title {
+            color: #0061ff;
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .avatar-dropzone .upload-hint {
+            font-size: 12px;
+            color: #777;
+            line-height: 1.5;
+        }
+
+        .avatar-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        .forgot-password-link {
+            display: block;
+            text-align: right;
+            font-size: 13px;
+            color: #0061ff;
+            text-decoration: none;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .forgot-password-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #0061ff;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #004ecc;
+        }
+
+        /* ================= APPS LAYOUT (NAVBAR) ================= */
+        .app-header {
+            background: white;
+            border-bottom: 1px solid #e1e6eb;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            background: #0061ff;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .brand-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #111;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            margin-left: 40px;
+            flex-grow: 1;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .nav-tab.active {
+            background: #edf3ff;
+            color: #0061ff;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Bảng nhỏ thả xuống khi bấm avatar */
+        .avatar-menu {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            width: 260px;
+            background: #fff;
+            border: 1px solid #e5e9f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 1100;
+            overflow: hidden;
+            animation: slideUp 0.15s ease-out;
+        }
+
+        .avatar-menu-header {
+            padding: 14px 16px;
+            background: #f8faff;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .avatar-menu-header .m-name { font-weight: 700; font-size: 14px; color: #0b1a30; }
+
+        .avatar-menu-header .m-email {
+            font-size: 12.5px;
+            color: #6c757d;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+
+        .avatar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+            font-size: 13.5px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .avatar-menu-item:hover { background: #f0f6ff; }
+
+        .avatar-menu-item.m-danger { color: #b02a37; border-top: 1px solid #eef2f7; }
+
+        .form-group input:disabled {
+            background: #f1f3f5;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .field-note { font-size: 12px; color: #8a94a6; margin-top: 4px; }
+
+        .user-name-display {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .avatar-circle {
+            background: #edf3ff;
+            color: #0061ff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            overflow: hidden;
+            border: 1px solid #dbeafe;
+        }
+
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .main-content {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ================= 2. KHUNG LỊCH LÀM VIỆC ================= */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .btn-success {
+            background: #0061ff;
+            color: white;
+            padding: 10px 18px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .calendar-grid {
+            background: white;
+            border: 1px solid #e1e6eb;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 60px repeat(7, 1fr);
+            overflow: hidden;
+        }
+
+        .grid-header {
+            background: #f8f9fa;
+            padding: 12px 5px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 1px solid #e1e6eb;
+            border-right: 1px solid #e1e6eb;
+        }
+
+        .time-col-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e6eb;
+            border-right: 1px solid #e1e6eb;
+        }
+
+        .time-cell {
+            height: 90px;
+            padding: 6px;
+            font-size: 12px;
+            color: #777;
+            text-align: right;
+            border-bottom: 1px solid #f0f2f5;
+            border-right: 1px solid #e1e6eb;
+        }
+
+        .day-column {
+            background: #fff;
+            border-right: 1px solid #e1e6eb;
+            position: relative;
+            height: 810px;
+        }
+
+        .day-grid-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-rows: repeat(9, 90px);
+            z-index: 1;
+        }
+        .bg-slot {
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .event-card {
+            position: absolute;
+            z-index: 2;
+            left: 4px;
+            right: 4px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border-left: 4px solid;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            transition: transform 0.1s;
+        }
+
+        .event-card:hover {
+            transform: scale(1.02);
+        }
+
+        .event-blue { background: #e6f0ff; border-left-color: #0061ff; color: #004ecc; }
+        .event-orange { background: #fff3e6; border-left-color: #ff9900; color: #b36b00; }
+        .event-green { background: #e6f7ed; border-left-color: #00cc66; color: #008040; }
+        .event-purple { background: #f3e6ff; border-left-color: #9933ff; color: #6600cc; }
+
+        .event-title { font-weight: bold; margin-bottom: 4px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .event-time, .event-loc { margin-bottom: 2px; opacity: 0.9; }
+
+        /* ================= 3. TRANG DANH SÁCH CUỘC HỌP ================= */
+        .list-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e6eb;
+            padding: 20px;
+        }
+
+        .list-header-tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #e1e6eb;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #f1f3f5;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: #0061ff;
+            color: white;
+        }
+
+        .meeting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .meeting-item:last-child {
+            border-bottom: none;
+        }
+
+        .meeting-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .meeting-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #edf3ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0061ff;
+            font-size: 20px;
+        }
+
+        .meeting-details h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #111;
+        }
+
+        .meeting-meta {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-upcoming { background: #f3e6ff; color: #9933ff; }
+        .status-accepted { background: #e6f0ff; color: #0061ff; } /* Màu trạng thái đã xác nhận tham gia */
+        .status-done { background: #e6f7ed; color: #00cc66; }
+        .status-canceled { background: #ffe6e6; color: #ff3333; }
+
+        /* ================= 4. KHUNG POPUP MODAL ================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: slideUp 0.2s ease-out;
+            /* Không cho modal cao vượt màn hình — phần thân sẽ có thanh cuộn */
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-card form {
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* cho phép modal-body bên trong co lại để cuộn */
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 24px 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .close-modal {
+            background: none;
+            font-size: 24px;
+            color: #999;
+        }
+
+        /* Khối nhập lý do từ chối cuộc họp */
+        .reject-reason-box {
+            background: #fff8f8;
+            border: 1px solid #f5c2c7;
+            border-radius: 8px;
+            padding: 14px;
+            margin: 0 20px 15px 20px;
+        }
+
+        .reject-reason-box label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: #b02a37;
+            margin-bottom: 8px;
+        }
+
+        .reject-reason-box textarea {
+            width: 100%;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+        }
+
+        .reject-reason-box textarea:focus { border-color: #dc3545; }
+
+        .reject-reason-box .reason-error {
+            color: #dc3545;
+            font-size: 12.5px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .reject-reason-box .reason-hint {
+            font-size: 12.5px;
+            color: #6c757d;
+            margin-top: 6px;
+        }
+
+        .reject-reason-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        /* Khối hiển thị lý do đã từ chối khi xem lại */
+        .rejected-reason-view {
+            background: #fdecea;
+            border-left: 4px solid #dc3545;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            color: #b02a37;
+            margin-bottom: 15px;
+        }
+
+        .btn-edit {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 8px;
+            background: #eaf1ff;
+            color: #0061ff;
+            border: 1px solid #c8dbff;
+        }
+
+        .btn-edit:hover { background: #dbe8ff; }
+
+        /* Nút điều hướng tuần */
+        .week-nav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #fff;
+            border: 1px solid #ced4da;
+            color: #333;
+        }
+
+        .week-nav-btn:hover { background: #eef2f7; }
+
+        /* Danh sách chọn người mời họp */
+        .invite-list {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .invite-list label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 5px;
+            font-size: 13.5px;
+            font-weight: normal;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .invite-list label:hover { background: #f0f6ff; }
+
+        .invite-list input[type="checkbox"] { width: auto; accent-color: #0061ff; }
+
+        .invite-list .invite-dept { color: #8a94a6; font-size: 12px; margin-left: auto; }
+
+        .invite-counter { font-size: 12.5px; color: #6c757d; margin-top: 6px; }
+
+        /* Chip người tham gia + trạng thái xác nhận trong modal chi tiết */
+        .participant-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+        }
+
+        .participant-row .p-name { font-size: 14px; flex: 1; }
+
+        .p-status {
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .p-status.p-pending  { background: #fff3cd; color: #8a6d00; }
+        .p-status.p-accepted { background: #d1e7dd; color: #146c43; }
+        .p-status.p-declined { background: #f8d7da; color: #b02a37; }
+
+        /* Hộp cảnh báo trùng giờ họp / phòng họp */
+        .conflict-alert {
+            background: #fdecea;
+            border: 1px solid #f5c2c7;
+            border-left: 4px solid #dc3545;
+            color: #b02a37;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            margin-bottom: 16px;
+        }
+
+        .conflict-alert strong { display: block; margin-bottom: 4px; }
+
+        .conflict-alert ul { margin: 6px 0 0 18px; }
+
+        .conflict-alert .room-suggest {
+            display: block;
+            margin-top: 8px;
+            color: #1a7f37;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 10px 24px 20px 24px;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .invitation-badge {
+            background-color: #edf3ff;
+            color: #0061ff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .modal-meeting-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f0f2f5;
+            padding-bottom: 15px;
+        }
+
+        .info-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .info-icon {
+            width: 36px;
+            height: 36px;
+            background-color: #f4f6f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #555;
+            flex-shrink: 0;
+        }
+
+        .info-text-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .divider-line {
+            height: 1px;
+            background-color: #f0f2f5;
+            margin: 20px 0;
+        }
+
+        .participants-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .avatar-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mini-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #edf3ff;
+            color: #0061ff;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dbeafe;
+        }
+
+        .desc-box {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .hint-text {
+            color: #b36b00;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .modal-footer-flex {
+            display: flex;
+            gap: 12px;
+            padding: 0 24px 24px 24px;
+        }
+
+        .btn-reject {
+            flex: 1;
+            background-color: white;
+            border: 1px solid #ff3333;
+            color: #ff3333;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-reject:hover {
+            background-color: #fff5f5;
+        }
+
+        .btn-accept {
+            flex: 1;
+            background-color: #1aa34a;
+            color: white;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-accept:hover {
+            background-color: #15803b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= TRANG ĐĂNG NHẬP ================= -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="logo" alt="Logo">
+            <h2>ĐĂNG NHẬP</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="Nhập Email của bạn" required>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" required>
+                </div>
+                <span class="forgot-password-link" onclick="showForgotPassword()">Quên mật khẩu?</span>
+                <button type="submit" class="btn-primary">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= TRANG QUÊN MẬT KHẨU ================= -->
+    <div id="forgotPasswordPage" class="login-container hidden">
+        <div class="login-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/6146/6146587.png" class="logo" alt="Key Logo">
+            <h2>ĐẶT LẠI MẬT KHẨU</h2>
+            <form id="forgotForm" onsubmit="handleResetPassword(event)">
+                <div class="form-group">
+                    <label>Nhập Email xác nhận</label>
+                    <input type="email" id="resetEmail" placeholder="example@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Tạo mật khẩu mới</label>
+                    <input type="password" id="resetNewPassword" placeholder="Nhập mật khẩu mới" required>
+                </div>
+                <button type="submit" class="btn-primary" style="background: #00cc66;">Lưu mật khẩu mới</button>
+                <button type="button" class="btn-secondary" style="width:100%; margin-top:10px; padding:12px; border-radius:4px;" onclick="showLogin()">Quay lại Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= TRANG CẬP NHẬT THÔNG TIN CÁ NHÂN ================= -->
+    <div id="profileUpdatePage" class="login-container hidden">
+        <div class="login-card" style="max-width: 600px;">
+            <span style="color:#0061ff; font-weight:bold; font-size:12px; display:block; text-align:left; margin-bottom:10px;">PAGE 2</span>
+            <h3 style="color:#0061ff; font-size:15px; text-align:left; margin-bottom:20px; font-weight:bold;">CẬP NHẬT THÔNG TIN CÁ NHÂN</h3>
+            <h2 style="font-size:24px; font-weight:bold; color:#111; margin-bottom:25px; text-align:center;">THÔNG TIN CÁ NHÂN</h2>
+            
+            <form id="profileForm" onsubmit="handleSaveProfile(event)">
+                <div class="profile-layout">
+                    <div class="profile-main-fields">
+                        <div class="form-group">
+                            <label>Email đăng nhập</label>
+                            <input type="email" id="profEmail" disabled>
+                            <div class="field-note">Email dùng để đăng nhập — không thể thay đổi.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Họ và tên <span>*</span></label>
+                            <input type="text" id="profName" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại <span>*</span></label>
+                            <input type="tel" id="profPhone" placeholder="0901234567" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phòng ban <span>*</span></label>
+                            <select id="profDept" required>
+                                <option value="Phòng Công Nghệ">Phòng Công Nghệ</option>
+                                <option value="Phòng Marketing">Phòng Marketing</option>
+                                <option value="Phòng Nhân Sự">Phòng Nhân Sự</option>
+                                <option value="Phòng Kế Toán">Phòng Kế Toán</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="avatar-upload-container">
+                        <label style="display:block; font-weight:600; font-size:14px; margin-bottom:6px; width:100%; text-align:left;">Ảnh đại diện (Avatar) <span>*</span></label>
+                        <div class="avatar-dropzone" onclick="document.getElementById('avatarFile').click()">
+                            <input type="file" id="avatarFile" accept=".jpg,.jpeg,.png" style="display:none;" onchange="previewAvatar(event)">
+                            <div id="dropzonePlaceholder">
+                                <div class="upload-title">Chọn ảnh</div>
+                                <div class="upload-hint">Định dạng:<br>.jpg, .jpeg, .png<br>Dung lượng không vượt quá 5MB</div>
+                            </div>
+                            <img id="avatarPreview" class="avatar-preview-img hidden" alt="Preview">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="background:#0061ff; padding:15px; font-size:16px; margin-top:25px; border-radius:6px;">Lưu thay đổi</button>
+                <button type="button" id="profBackBtn" class="btn-secondary hidden" style="width:100%; margin-top:10px; padding:12px; border-radius:6px;" onclick="backToMainApp('profileUpdatePage')">Quay lại (không lưu)</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= TRANG ĐỔI MẬT KHẨU (TỪ MENU AVATAR) ================= -->
+    <div id="changePasswordPage" class="login-container hidden">
+        <div class="login-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/6146/6146587.png" class="logo" alt="Key Logo">
+            <h2>ĐỔI MẬT KHẨU</h2>
+            <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                    <label>Email đăng nhập</label>
+                    <input type="email" id="cpEmail" disabled>
+                    <div class="field-note">Email dùng để đăng nhập — không thể thay đổi.</div>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu hiện tại <span style="color:red;">*</span></label>
+                    <input type="password" id="cpCurrent" placeholder="Nhập mật khẩu hiện tại" required>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu mới <span style="color:red;">*</span></label>
+                    <input type="password" id="cpNew" placeholder="Nhập mật khẩu mới" required>
+                </div>
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu mới <span style="color:red;">*</span></label>
+                    <input type="password" id="cpConfirm" placeholder="Nhập lại mật khẩu mới" required>
+                </div>
+                <button type="submit" class="btn-primary" style="background: #00cc66;">Lưu mật khẩu mới</button>
+                <button type="button" class="btn-secondary" style="width:100%; margin-top:10px; padding:12px; border-radius:4px;" onclick="backToMainApp('changePasswordPage')">Quay lại</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= ỨNG DỤNG CHÍNH (MAIN APP) ================= -->
+    <div id="mainApp" class="hidden">
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-logo">Y</div>
+                <span class="brand-name">YETI MECX</span>
+                <nav class="nav-tabs">
+                    <button class="nav-tab active" id="tabCalendar" onclick="switchTab('calendar')">Lịch họp cá nhân</button>
+                    <button class="nav-tab" id="tabList" onclick="switchTab('list')">Danh sách cuộc họp</button>
+                </nav>
+            </div>
+            <div class="user-profile" id="userProfileArea" onclick="toggleAvatarMenu(event)">
+                <span class="user-name-display" id="navUserName">Nguyễn Văn A</span>
+                <div class="avatar-circle" id="navAvatarContainer">
+                    <span id="navAvatarText">NA</span>
+                </div>
+                <!-- Bảng nhỏ tùy chọn tài khoản -->
+                <div class="avatar-menu hidden" id="avatarMenu">
+                    <div class="avatar-menu-header">
+                        <div class="m-name" id="menuUserName">Nguyễn Văn A</div>
+                        <div class="m-email" id="menuUserEmail">admin@gmail.com</div>
+                    </div>
+                    <div class="avatar-menu-item" onclick="openProfileFromMenu(event)">✎ Chỉnh thông tin nhân viên</div>
+                    <div class="avatar-menu-item" onclick="openChangePassword(event)">🔑 Đổi mật khẩu</div>
+                    <div class="avatar-menu-item m-danger" onclick="handleLogout(event)">↪ Đăng xuất</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Giao diện lịch tuần -->
+            <div id="calendarView">
+                <div class="toolbar">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button class="btn-secondary week-nav-btn" onclick="changeWeek(-1)" title="Tuần trước">‹</button>
+                        <button class="btn-secondary week-nav-btn" style="width:auto; padding:8px 14px; font-size:13px;" onclick="goToToday()">Hôm nay</button>
+                        <button class="btn-secondary week-nav-btn" onclick="changeWeek(1)" title="Tuần sau">›</button>
+                        <div class="calendar-title" id="calendarTitle">Tuần</div>
+                    </div>
+                    <button class="btn-success" onclick="openCreateModal()">+ Tạo lịch họp</button>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <!-- Giao diện Danh sách cuộc họp -->
+            <div id="listView" class="hidden">
+                <div class="list-container">
+                    <div class="list-header-tabs">
+                        <button class="filter-btn active" onclick="filterMeetings('all', this)">Tất cả</button>
+                        <button class="filter-btn" onclick="filterMeetings('Sắp tới', this)">Sắp tới</button>
+                        <button class="filter-btn" onclick="filterMeetings('Đã xác nhận', this)">Đã xác nhận</button>
+                        <button class="filter-btn" onclick="filterMeetings('Đã Kết Thúc', this)">Đã Kết Thúc</button>
+                        <button class="filter-btn" onclick="filterMeetings('Đã Hủy', this)">Đã Hủy</button>
+                    </div>
+                    <div id="meetingListWrapper"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODAL TẠO CUỘC HỌP MỚI ================= -->
+    <div id="createModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="modal-title" id="createModalTitle" style="font-weight:bold; font-size:18px;">Tạo cuộc họp mới</span>
+                <button class="close-modal" onclick="closeModal('createModal')">&times;</button>
+            </div>
+            <form id="createMeetingForm" onsubmit="handleCreateMeeting(event)">
+                <div class="modal-body">
+                    <div id="conflictAlert" class="conflict-alert hidden"></div>
+                    <div class="form-group">
+                        <label>Tên cuộc họp</label>
+                        <input type="text" id="mTitle" placeholder="Nhập tên cuộc họp" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày họp</label>
+                        <input type="date" id="mDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Khung giờ bắt đầu</label>
+                        <select id="mStart" required>
+                            <option value="8">08:00</option>
+                            <option value="9">09:00</option>
+                            <option value="10">10:00</option>
+                            <option value="11">11:00</option>
+                            <option value="12">12:00</option>
+                            <option value="13">13:00</option>
+                            <option value="14">14:00</option>
+                            <option value="15">15:00</option>
+                            <option value="16">16:00</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Thời lượng</label>
+                        <select id="mDuration" required>
+                            <option value="1">1 Tiếng</option>
+                            <option value="1.5">1.5 Tiếng</option>
+                            <option value="2">2 Tiếng</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phòng họp</label>
+                        <select id="mRoom" required>
+                            <option value="Phòng A (20 chỗ, có máy chiếu, camera, micro)">Phòng A (20 chỗ, có máy chiếu, camera, micro)</option>
+                            <option value="Phòng B (10 chỗ, có tivi, micro)">Phòng B (10 chỗ, có tivi, micro)</option>
+                            <option value="Phòng C (50 chỗ, hội trường lớn)">Phòng C (50 chỗ, hội trường lớn)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mời người tham gia <span style="color:red;">*</span></label>
+                        <div class="invite-list" id="inviteList"></div>
+                        <div class="invite-counter" id="inviteCounter">Đã chọn 0 người — người được mời sẽ nhận lời mời và tự xác nhận tham gia.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nội dung cuộc họp</label>
+                        <textarea id="mDesc" rows="2" placeholder="Mục tiêu..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Màu hiển thị</label>
+                        <select id="mColor">
+                            <option value="event-blue">Xanh dương</option>
+                            <option value="event-orange">Cam</option>
+                            <option value="event-green">Xanh lá</option>
+                            <option value="event-purple">Tím</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding:15px 20px; background:#f8f9fa; display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #f0f2f5;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Hủy</button>
+                    <button type="submit" id="createSubmitBtn" style="background:#00cc66; color:white; padding:10px 20px; font-weight:600;">Tạo cuộc họp</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL XEM CHI TIẾT CUỘC HỌP ================= -->
+    <div id="detailModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <div class="invitation-badge">📩 Lời mời họp mới</div>
+                    <div id="dtViewTitle" class="modal-meeting-title">Tên cuộc họp</div>
+                </div>
+                <button class="close-modal" onclick="closeModal('detailModal')">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="info-block">
+                    <div class="info-icon">📅</div>
+                    <div class="info-text-wrapper">
+                        <span class="info-label">Thời gian</span>
+                        <span id="dtTime" class="info-value">Thứ 2, 09:00 - 10:00 • 22/06/2026</span>
+                    </div>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-icon">📍</div>
+                    <div class="info-text-wrapper">
+                        <span class="info-label">Phòng họp</span>
+                        <span id="dtRoom" class="info-value">Phòng A (20 chỗ, có máy chiếu, camera, micro)</span>
+                    </div>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-icon">👤</div>
+                    <div class="info-text-wrapper">
+                        <span class="info-label">Người tổ chức</span>
+                        <span id="dtOrganizer" class="info-value">Nguyễn Văn A</span>
+                    </div>
+                </div>
+
+                <div class="divider-line"></div>
+
+                <div class="participants-section">
+                    <div class="section-title" id="dtParticipantsTitle">Người tham gia</div>
+                    <div id="dtParticipants"></div>
+                </div>
+
+                <div class="section-title">Nội dung cuộc họp</div>
+                <div id="dtDesc" class="desc-box">
+                    Lập kế hoạch công việc cho Sprint mới: phân chia Task, ước lượng thời gian và xác nhận mục tiêu Sprint.
+                </div>
+
+                <div id="dtDeadline" class="hint-text">Vui lòng phản hồi trước 08:00 ngày 22/06/2026.</div>
+                <div id="dtRejectedReason" class="rejected-reason-view hidden"></div>
+                <div style="margin-bottom: 15px; font-size: 14px;">
+                    <span class="section-title" style="display:inline; margin-right:10px;">Trạng thái hiện tại:</span>
+                    <span id="dtStatus" class="status-badge">Sắp tới</span>
+                </div>
+            </div>
+
+            <!-- Khối nhập lý do từ chối (ẩn mặc định) -->
+            <div id="rejectReasonBox" class="reject-reason-box hidden">
+                <label id="rrLabel">Lý do từ chối tham gia <span style="color:red;">*</span></label>
+                <textarea id="rejectReasonInput" rows="3" placeholder="Ví dụ: Trùng lịch họp với khách hàng, xin phép vắng mặt buổi này..."></textarea>
+                <div id="rejectReasonError" class="reason-error">Vui lòng nhập lý do trước khi gửi.</div>
+                <div class="reason-hint" id="rrHint">Lý do sẽ được gửi qua email đến người tổ chức cuộc họp.</div>
+                <div class="reject-reason-actions">
+                    <button type="button" class="btn-secondary" onclick="cancelRejectReason()">Quay lại</button>
+                    <button type="button" class="btn-reject" style="width:auto; padding:10px 18px;" id="rrSubmitBtn" onclick="submitReasonBox()">
+                        <span>✕</span> Gửi lý do &amp; Từ chối
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer-flex" id="detailFooterButtons">
+                <button id="btnRejectMeeting" class="btn-reject" onclick="showRejectReason()">
+                    <span>✕</span> Từ chối
+                </button>
+                <button id="btnAcceptMeeting" class="btn-accept" onclick="changeStatusActive('Đã xác nhận')">
+                    <span>✓</span> Đồng ý tham gia
+                </button>
+                <button id="btnEditMeeting" class="btn-edit hidden" onclick="openEditMeeting()">
+                    <span>✎</span> Sửa cuộc họp
+                </button>
+                <button id="btnCancelMeeting" class="btn-reject hidden" onclick="showCancelMeetingReason()">
+                    <span>✕</span> Hủy cuộc họp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // Danh bạ nhân viên có thể mời họp
+        const EMPLOYEES = [
+            { name: 'Trần Thị Bích',   dept: 'Phòng Marketing' },
+            { name: 'Lê Văn Cường',    dept: 'Phòng Công Nghệ' },
+            { name: 'Phạm Thùy Dung',  dept: 'Phòng Nhân Sự' },
+            { name: 'Hoàng Minh Em',   dept: 'Phòng Kế Toán' },
+            { name: 'Vũ Quốc Huy',     dept: 'Phòng Công Nghệ' },
+            { name: 'Ngô Thanh Lan',   dept: 'Phòng Marketing' },
+            { name: 'Đỗ Hải Nam',      dept: 'Phòng Công Nghệ' },
+            { name: 'Bùi Kim Oanh',    dept: 'Phòng Nhân Sự' }
+        ];
+
+        function getInitials(fullName) {
+            const words = fullName.trim().split(/\s+/);
+            if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
+            return (words[words.length - 2][0] + words[words.length - 1][0]).toUpperCase();
+        }
+
+        // ===== DỮ LIỆU CUỘC HỌP =====
+        // SỬA: không còn hard-code mảng mock data — dữ liệu thật sẽ được nạp
+        // từ server qua loadMeetingsFromDB() (endpoint /get-meetings) sau khi đăng nhập.
+        let meetings = [];
+
+        // ===== HỒ SƠ NGƯỜI DÙNG HIỆN TẠI =====
+        let currentUserProfile = { email: "" };
+
+        let selectedMeetingId = null;
+        let currentFilter = 'all';
+
+        // ===== 1. XỬ LÝ ĐĂNG NHẬP (gọi API thật /login) =====
+        async function handleLogin(event) {
+            event.preventDefault();
+            let emailInput = document.getElementById('loginEmail').value;
+            let passInput = document.getElementById('loginPassword').value;
+
+            try {
+                // Gửi yêu cầu đăng nhập lên server
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput, password: passInput })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Đăng nhập thành công từ CSDL
+                    currentUserProfile.email = emailInput;
+                    document.getElementById('profEmail').value = emailInput;
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('profileUpdatePage').classList.remove('hidden');
+
+                    // SỬA: nạp danh sách cuộc họp thật từ CSDL ngay sau khi đăng nhập thành công
+                    await loadMeetingsFromDB();
+                } else {
+                    // Thông báo lỗi từ server gửi về
+                    alert(result.message || "Sai Email hoặc Mật khẩu!");
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Không thể kết nối đến máy chủ!");
+            }
+        }
+
+        // ===== MỚI: tải danh sách cuộc họp thật từ CSDL, thay cho mock data =====
+        async function loadMeetingsFromDB() {
+            try {
+                const response = await fetch('/get-meetings');
+                const data = await response.json();
+                if (response.ok) {
+                    meetings = data;
+                    renderCalendarEvents();
+                    renderMeetingList();
+                } else {
+                    console.error("Không tải được danh sách cuộc họp:", data.message);
+                }
+            } catch (error) {
+                console.error("Lỗi tải lịch họp từ DB:", error);
+            }
+        }
+
+        function previewAvatar(event) {
+            let file = event.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("File quá lớn! Vui lòng chọn file dưới 5MB.");
+                    return;
+                }
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let previewImg = document.getElementById('avatarPreview');
+                    let placeholder = document.getElementById('dropzonePlaceholder');
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    currentUserProfile.avatarUrl = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleSaveProfile(event) {
+            event.preventDefault();
+            currentUserProfile.fullName = document.getElementById('profName').value;
+            currentUserProfile.phone = document.getElementById('profPhone').value;
+            currentUserProfile.department = document.getElementById('profDept').value;
+
+            document.getElementById('navUserName').innerText = currentUserProfile.fullName;
+            let avatarContainer = document.getElementById('navAvatarContainer');
+            
+            if (currentUserProfile.avatarUrl) {
+                avatarContainer.innerHTML = `<img src="${currentUserProfile.avatarUrl}" alt="Avatar">`;
+            } else {
+                let words = currentUserProfile.fullName.split(' ');
+                let shortName = words[words.length - 1].substring(0, 2).toUpperCase();
+                avatarContainer.innerHTML = `<span id="navAvatarText">${shortName}</span>`;
+            }
+
+            document.getElementById('profileUpdatePage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+
+            renderCalendarEvents();
+            renderMeetingList();
+        }
+
+        // ===== MENU AVATAR: chỉnh thông tin nhân viên / đổi mật khẩu / đăng xuất =====
+        function toggleAvatarMenu(event) {
+            event.stopPropagation();
+            document.getElementById('menuUserName').innerText = currentUserProfile.fullName || 'Nguyễn Văn A';
+            document.getElementById('menuUserEmail').innerText = currentUserProfile.email || '';
+            document.getElementById('avatarMenu').classList.toggle('hidden');
+        }
+
+        // Bấm ra ngoài thì đóng menu
+        document.addEventListener('click', function () {
+            const menu = document.getElementById('avatarMenu');
+            if (menu) menu.classList.add('hidden');
+        });
+
+        function backToMainApp(pageId) {
+            document.getElementById(pageId).classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
+        // Mở trang chỉnh thông tin nhân viên từ menu — điền sẵn dữ liệu hiện tại
+        function openProfileFromMenu(event) {
+            event.stopPropagation();
+            document.getElementById('avatarMenu').classList.add('hidden');
+
+            document.getElementById('profEmail').value = currentUserProfile.email || '';
+            document.getElementById('profName').value = currentUserProfile.fullName || '';
+            document.getElementById('profPhone').value = currentUserProfile.phone || '';
+            if (currentUserProfile.department) document.getElementById('profDept').value = currentUserProfile.department;
+
+            // Hiện lại ảnh đại diện đã chọn (nếu có)
+            const preview = document.getElementById('avatarPreview');
+            const placeholder = document.getElementById('dropzonePlaceholder');
+            if (currentUserProfile.avatarUrl) {
+                preview.src = currentUserProfile.avatarUrl;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+
+            document.getElementById('profBackBtn').classList.remove('hidden'); // mở từ menu: cho phép quay lại
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('profileUpdatePage').classList.remove('hidden');
+        }
+
+        // Mở trang đổi mật khẩu từ menu
+        function openChangePassword(event) {
+            event.stopPropagation();
+            document.getElementById('avatarMenu').classList.add('hidden');
+            document.getElementById('changePasswordForm').reset();
+            document.getElementById('cpEmail').value = currentUserProfile.email || '';
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('changePasswordPage').classList.remove('hidden');
+        }
+
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            const cur = document.getElementById('cpCurrent').value;
+            const nw = document.getElementById('cpNew').value;
+            const cf = document.getElementById('cpConfirm').value;
+
+            if (nw.length < 3) {
+                alert('Mật khẩu mới phải có ít nhất 3 ký tự.');
+                return;
+            }
+            if (nw === cur) {
+                alert('Mật khẩu mới phải khác mật khẩu hiện tại.');
+                return;
+            }
+            if (nw !== cf) {
+                alert('Xác nhận mật khẩu mới không khớp. Vui lòng nhập lại.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentUserProfile.email,
+                        currentPassword: cur,
+                        newPassword: nw
+                    })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Đổi mật khẩu thành công! Mật khẩu mới sẽ dùng cho lần đăng nhập sau.');
+                    backToMainApp('changePasswordPage');
+                } else {
+                    alert(result.message || 'Mật khẩu hiện tại không đúng. Vui lòng thử lại.');
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Không thể kết nối đến máy chủ!");
+            }
+        }
+
+        function handleLogout(event) {
+            event.stopPropagation();
+            document.getElementById('avatarMenu').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginPage').classList.remove('hidden');
+        }
+
+        function switchTab(tabName) {
+            document.getElementById('tabCalendar').classList.remove('active');
+            document.getElementById('tabList').classList.remove('active');
+            document.getElementById('calendarView').classList.add('hidden');
+            document.getElementById('listView').classList.add('hidden');
+
+            if (tabName === 'calendar') {
+                document.getElementById('tabCalendar').classList.add('active');
+                document.getElementById('calendarView').classList.remove('hidden');
+                renderCalendarEvents();
+            } else {
+                document.getElementById('tabList').classList.add('active');
+                document.getElementById('listView').classList.remove('hidden');
+                renderMeetingList();
+            }
+        }
+
+        // ===== MỜI NGƯỜI THAM GIA HỌP =====
+        function buildInviteList() {
+            const wrap = document.getElementById('inviteList');
+            wrap.innerHTML = '';
+            EMPLOYEES.forEach((emp, i) => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" value="${i}" onchange="updateInviteCounter()">` +
+                    `<span>${emp.name}</span><span class="invite-dept">${emp.dept}</span>`;
+                wrap.appendChild(label);
+            });
+            updateInviteCounter();
+        }
+
+        function getInvitedEmployees() {
+            return Array.from(document.querySelectorAll('#inviteList input:checked'))
+                .map(cb => EMPLOYEES[parseInt(cb.value)]);
+        }
+
+        function updateInviteCounter() {
+            const n = getInvitedEmployees().length;
+            document.getElementById('inviteCounter').innerText =
+                `Đã chọn ${n} người — người được mời sẽ nhận lời mời và tự xác nhận tham gia.`;
+        }
+
+        function renderParticipants(meeting) {
+            const wrap = document.getElementById('dtParticipants');
+            const title = document.getElementById('dtParticipantsTitle');
+            wrap.innerHTML = '';
+            const list = meeting.participants || [];
+            title.innerText = `Người tham gia (${list.length})`;
+
+            if (list.length === 0) {
+                wrap.innerHTML = '<div style="font-size:13px; color:#8a94a6;">Chưa mời ai tham gia cuộc họp này.</div>';
+                return;
+            }
+
+            list.forEach(p => {
+                let cls = 'p-pending', txt = 'Chờ xác nhận';
+                if (p.status === 'Đã xác nhận') { cls = 'p-accepted'; txt = 'Đã xác nhận'; }
+                if (p.status === 'Từ chối')     { cls = 'p-declined'; txt = 'Từ chối'; }
+
+                const row = document.createElement('div');
+                row.className = 'participant-row';
+                row.innerHTML = `<div class="mini-avatar">${getInitials(p.name)}</div>` +
+                    `<span class="p-name"></span><span class="p-status ${cls}">${txt}</span>`;
+                row.querySelector('.p-name').textContent = p.name;
+                wrap.appendChild(row);
+            });
+        }
+
+        let editingMeetingId = null; // null = đang tạo mới; khác null = đang sửa cuộc họp
+
+        function openCreateModal() {
+            editingMeetingId = null;
+            document.getElementById('createMeetingForm').reset();
+            document.getElementById('createModalTitle').innerText = 'Tạo cuộc họp mới';
+            document.getElementById('createSubmitBtn').innerText = 'Tạo cuộc họp';
+            hideConflictAlert();
+            buildInviteList();
+            const dateInput = document.getElementById('mDate');
+            if (!dateInput.value) dateInput.value = toISODate(new Date());
+            document.getElementById('createModal').classList.remove('hidden');
+        }
+
+        // ===== SỬA CUỘC HỌP (chỉ người tổ chức; quyền của Quản lý phòng họp thuộc module Quản lý) =====
+        function openEditMeeting() {
+            const meeting = meetings.find(m => m.id === selectedMeetingId);
+            if (!meeting || !meeting.organizerIsMe) return;
+
+            editingMeetingId = meeting.id;
+            closeModal('detailModal');
+
+            document.getElementById('createModalTitle').innerText = 'Cập nhật cuộc họp';
+            document.getElementById('createSubmitBtn').innerText = 'Lưu thay đổi';
+            hideConflictAlert();
+
+            // Điền sẵn dữ liệu hiện tại của cuộc họp
+            document.getElementById('mTitle').value = meeting.title;
+            document.getElementById('mDate').value = meeting.date;
+            document.getElementById('mStart').value = String(meeting.startHour);
+            document.getElementById('mDuration').value = String(meeting.duration);
+            document.getElementById('mRoom').value = meeting.room;
+            document.getElementById('mDesc').value = meeting.desc || '';
+            document.getElementById('mColor').value = meeting.color;
+
+            // Tích sẵn những người đã được mời
+            buildInviteList();
+            const invitedNames = (meeting.participants || []).map(p => p.name);
+            document.querySelectorAll('#inviteList input').forEach(cb => {
+                cb.checked = invitedNames.includes(EMPLOYEES[parseInt(cb.value)].name);
+            });
+            updateInviteCounter();
+
+            document.getElementById('createModal').classList.remove('hidden');
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal('createModal');
+                closeModal('detailModal');
+            }
+        });
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // ===== KIỂM TRA TRÙNG GIỜ HỌP / TRÙNG PHÒNG HỌP =====
+        // Hai khoảng thời gian giao nhau khi: bắt_đầu_mới < kết_thúc_cũ VÀ bắt_đầu_cũ < kết_thúc_mới
+        function isOverlap(startA, durA, startB, durB) {
+            return startA < (startB + durB) && startB < (startA + durA);
+        }
+
+        // Trả về danh sách xung đột với các cuộc họp còn hiệu lực (bỏ qua "Đã Hủy", "Đã Kết Thúc")
+        // excludeId: bỏ qua chính cuộc họp đang được chỉnh sửa
+        function checkConflicts(date, startHour, duration, room, excludeId = null) {
+            const active = meetings.filter(m =>
+                m.id !== excludeId &&
+                m.date === date &&
+                m.status !== 'Đã Hủy' && m.status !== 'Đã Kết Thúc' &&
+                isOverlap(startHour, duration, m.startHour, m.duration)
+            );
+            return {
+                roomConflicts: active.filter(m => m.room === room),   // trùng phòng họp
+                timeConflicts: active.filter(m => m.room !== room)     // trùng giờ với lịch cá nhân (phòng khác)
+            };
+        }
+
+        // Gợi ý các phòng còn trống trong đúng khung giờ đó
+        function suggestFreeRooms(date, startHour, duration, excludeId = null) {
+            const allRooms = Array.from(document.getElementById('mRoom').options).map(o => o.value);
+            return allRooms.filter(r => checkConflicts(date, startHour, duration, r, excludeId).roomConflicts.length === 0);
+        }
+
+        function meetingLine(m) {
+            const end = m.startHour + m.duration;
+            return `“${m.title}” (${formatHour(m.startHour)} – ${formatHour(end)}, ${m.room.split(' (')[0]})`;
+        }
+
+        function showConflictAlert(html) {
+            const box = document.getElementById('conflictAlert');
+            box.innerHTML = html;
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideConflictAlert() {
+            document.getElementById('conflictAlert').classList.add('hidden');
+        }
+
+        // ===== 2. XỬ LÝ TẠO / SỬA CUỘC HỌP (gọi API thật, có kiểm tra trùng giờ/phòng phía client) =====
+        async function handleCreateMeeting(event) {
+            event.preventDefault();
+            let title = document.getElementById('mTitle').value;
+            let date = document.getElementById('mDate').value;
+            let startHour = parseFloat(document.getElementById('mStart').value);
+            let duration = parseFloat(document.getElementById('mDuration').value);
+            let room = document.getElementById('mRoom').value;
+            let desc = document.getElementById('mDesc').value;
+            let color = document.getElementById('mColor').value;
+
+            // ── Kiểm tra trùng lịch trước khi tạo/lưu (bỏ qua chính cuộc họp đang sửa) ──
+            const { roomConflicts, timeConflicts } = checkConflicts(date, startHour, duration, room, editingMeetingId);
+
+            if (roomConflicts.length > 0) {
+                const freeRooms = suggestFreeRooms(date, startHour, duration, editingMeetingId);
+                showConflictAlert(
+                    `<strong>⚠ Trùng phòng họp!</strong>` +
+                    `${room.split(' (')[0]} đã có lịch trong khung giờ này:` +
+                    `<ul>${roomConflicts.map(m => `<li>${meetingLine(m)}</li>`).join('')}</ul>` +
+                    (freeRooms.length > 0
+                        ? `<span class="room-suggest">✓ Gợi ý phòng còn trống cùng khung giờ: ${freeRooms.map(r => r.split(' (')[0]).join(', ')}</span>`
+                        : `<span class="room-suggest" style="color:#b02a37;">Không còn phòng trống — vui lòng chọn khung giờ khác.</span>`)
+                );
+                return; // chặn tạo cuộc họp
+            }
+
+            if (timeConflicts.length > 0) {
+                showConflictAlert(
+                    `<strong>⚠ Trùng giờ họp!</strong>` +
+                    `Bạn đã có lịch họp khác trong khung giờ này:` +
+                    `<ul>${timeConflicts.map(m => `<li>${meetingLine(m)}</li>`).join('')}</ul>` +
+                    `Vui lòng chọn khung giờ khác hoặc điều chỉnh thời lượng.`
+                );
+                return; // chặn tạo cuộc họp
+            }
+
+            // ── Người tham gia: bắt buộc mời ít nhất 1 người ──
+            const invited = getInvitedEmployees();
+            if (invited.length === 0) {
+                showConflictAlert(
+                    `<strong>⚠ Chưa mời người tham gia!</strong>` +
+                    `Vui lòng chọn ít nhất một người để gửi lời mời họp.`
+                );
+                return;
+            }
+
+            hideConflictAlert();
+
+            const meetingData = {
+                id: editingMeetingId, // null nếu tạo mới, có giá trị nếu đang sửa
+                title, date, startHour, duration, room, desc, color,
+                organizerEmail: currentUserProfile.email,
+                participants: invited.map(emp => emp.name)
+            };
+
+            const isEditing = editingMeetingId !== null;
+            const endpoint = isEditing ? '/update-meeting' : '/create-meeting';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(meetingData)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    editingMeetingId = null;
+                    closeModal('createModal');
+                    document.getElementById('createMeetingForm').reset();
+
+                    // Nạp lại dữ liệu mới nhất từ server thay vì tự chèn vào mảng local
+                    await loadMeetingsFromDB();
+
+                    alert(isEditing
+                        ? `Đã cập nhật cuộc họp "${title}".\nEmail thông báo thay đổi đã được gửi đến ${invited.length} người tham gia.`
+                        : `Tạo lịch họp mới thành công!\nĐã gửi lời mời qua email đến ${invited.length} người: ${invited.map(e => e.name).join(', ')}.\nHọ sẽ xác nhận Đồng ý / Từ chối tham gia.`);
+                } else {
+                    // Server là nơi kiểm tra cuối cùng (tránh race-condition khi 2 người tạo cùng lúc)
+                    showConflictAlert(`<strong>⚠ Lỗi:</strong> ${result.message || 'Không thể lưu cuộc họp.'}`);
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Không thể kết nối đến máy chủ!");
+            }
+        }
+
+        // ===== LỊCH TUẦN ĐỘNG (không giới hạn 1 tuần cố định) =====
+        function mondayOf(d) {
+            const date = new Date(d);
+            const day = (date.getDay() + 6) % 7; // Thứ 2 = 0
+            date.setDate(date.getDate() - day);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        }
+
+        let currentWeekStart = mondayOf(new Date());
+
+        function toISODate(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function changeWeek(delta) {
+            currentWeekStart.setDate(currentWeekStart.getDate() + delta * 7);
+            renderCalendarEvents();
+        }
+
+        function goToToday() {
+            currentWeekStart = mondayOf(new Date());
+            renderCalendarEvents();
+        }
+
+        function renderWeekGrid() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const headerNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(currentWeekStart);
+                d.setDate(d.getDate() + i);
+                days.push(d);
+            }
+
+            // Tiêu đề: "Tuần 06/07 – 12/07/2026"
+            const fmt = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('calendarTitle').innerText =
+                `Tuần ${fmt(days[0])} – ${fmt(days[6])}/${days[6].getFullYear()}`;
+
+            // Hàng tiêu đề cột
+            const timeColHeader = document.createElement('div');
+            timeColHeader.className = 'time-col-header';
+            grid.appendChild(timeColHeader);
+
+            const todayISO = toISODate(new Date());
+            days.forEach((d, i) => {
+                const h = document.createElement('div');
+                h.className = 'grid-header';
+                h.innerHTML = `${headerNames[i]}<br>${fmt(d)}`;
+                if (toISODate(d) === todayISO) h.style.color = '#0061ff';
+                grid.appendChild(h);
+            });
+
+            // Cột giờ 08:00 - 16:00
+            const timeCol = document.createElement('div');
+            timeCol.className = 'time-column';
+            for (let h = 8; h <= 16; h++) {
+                const c = document.createElement('div');
+                c.className = 'time-cell';
+                c.innerText = `${String(h).padStart(2, '0')}:00`;
+                timeCol.appendChild(c);
+            }
+            grid.appendChild(timeCol);
+
+            // 7 cột ngày, id gắn theo ngày đầy đủ
+            days.forEach(d => {
+                const col = document.createElement('div');
+                col.className = 'day-column';
+                col.id = `day-${toISODate(d)}`;
+                col.innerHTML = '<div class="day-grid-bg">' + '<div class="bg-slot"></div>'.repeat(9) + '</div>';
+                grid.appendChild(col);
+            });
+        }
+
+        function renderCalendarEvents() {
+            renderWeekGrid();
+
+            meetings.forEach(meeting => {
+                if (meeting.status === 'Đã Hủy') return;
+
+                let targetColumn = document.getElementById(`day-${meeting.date}`);
+
+                if (targetColumn) {
+                    let card = document.createElement('div');
+                    card.className = `event-card ${meeting.color}`;
+                    
+                    let startOffset = meeting.startHour - 8;
+                    let topPx = startOffset * 90;
+                    let heightPx = meeting.duration * 90;
+
+                    card.style.top = `${topPx}px`;
+                    card.style.height = `${heightPx}px`;
+
+                    let endHour = meeting.startHour + meeting.duration;
+                    let timeText = `${formatHour(meeting.startHour)} - ${formatHour(endHour)}`;
+
+                    card.innerHTML = `
+                        <div class="event-title">${meeting.title}</div>
+                        <div class="event-time">${timeText}</div>
+                        <div class="event-loc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${meeting.room.split(' ')[0]}</div>
+                    `;
+
+                    card.onclick = () => openDetailModal(meeting.id);
+                    targetColumn.appendChild(card);
+                }
+            });
+        }
+
+        function formatHour(h) {
+            let hour = Math.floor(h);
+            let min = (h % 1 === 0.5) ? '30' : '00';
+            return `${hour.toString().padStart(2, '0')}:${min}`;
+        }
+
+        function getDayOfWeekText(dateStr) {
+            let d = new Date(dateStr);
+            let day = d.getDay();
+            if (day === 0) return "Chủ Nhật";
+            return `Thứ ${day + 1}`;
+        }
+
+        function openDetailModal(id) {
+            selectedMeetingId = id;
+            let meeting = meetings.find(m => m.id === id);
+            if (!meeting) return;
+
+            document.getElementById('dtViewTitle').innerText = meeting.title;
+            
+            let endHour = meeting.startHour + meeting.duration;
+            let dayText = getDayOfWeekText(meeting.date);
+            let dateFormatted = meeting.date.split('-').reverse().join('/');
+            document.getElementById('dtTime').innerText = `${dayText}, ${formatHour(meeting.startHour)} - ${formatHour(endHour)} • ${dateFormatted}`;
+            
+            document.getElementById('dtRoom').innerText = meeting.room;
+            document.getElementById('dtOrganizer').innerText = meeting.organizerIsMe
+                ? `${currentUserProfile.fullName || 'Nguyễn Văn A'} (bạn)`
+                : (meeting.organizer || 'Không rõ');
+            document.getElementById('dtDesc').innerText = meeting.desc || "Không có nội dung cuộc họp.";
+            renderParticipants(meeting);
+            
+            document.getElementById('dtDeadline').innerText = `Vui lòng phản hồi trước 08:00 ngày ${dateFormatted}.`;
+
+            let statusBadge = document.getElementById('dtStatus');
+            statusBadge.innerText = meeting.status;
+            statusBadge.className = "status-badge";
+            
+            if (meeting.status === 'Sắp tới') statusBadge.classList.add('status-upcoming');
+            if (meeting.status === 'Đã xác nhận') statusBadge.classList.add('status-accepted');
+            if (meeting.status === 'Đã Kết Thúc') statusBadge.classList.add('status-done');
+            if (meeting.status === 'Đã Hủy') statusBadge.classList.add('status-canceled');
+
+            let btnReject = document.getElementById('btnRejectMeeting');
+            let btnAccept = document.getElementById('btnAcceptMeeting');
+            let btnEdit = document.getElementById('btnEditMeeting');
+            let btnCancelM = document.getElementById('btnCancelMeeting');
+
+            // Reset khối nhập lý do mỗi lần mở modal
+            cancelRejectReason();
+
+            // Hiển thị lý do nếu cuộc họp đã bị hủy / từ chối trước đó
+            let reasonView = document.getElementById('dtRejectedReason');
+            if (meeting.status === 'Đã Hủy' && meeting.cancelReason) {
+                reasonView.innerHTML = `<strong>Lý do hủy cuộc họp</strong> (đã gửi Gmail đến ${(meeting.participants || []).length} người tham gia): `;
+                reasonView.appendChild(document.createTextNode(meeting.cancelReason));
+                reasonView.classList.remove('hidden');
+            } else if (meeting.status === 'Đã Hủy' && meeting.rejectReason) {
+                reasonView.innerHTML = `<strong>Lý do từ chối</strong> (đã gửi người tổ chức): `;
+                reasonView.appendChild(document.createTextNode(meeting.rejectReason));
+                reasonView.classList.remove('hidden');
+            } else {
+                reasonView.classList.add('hidden');
+            }
+
+            // Phân quyền nút theo vai trò:
+            // - Người tổ chức (organizerIsMe): Sửa + Hủy cuộc họp (khi họp còn hiệu lực)
+            // - Người được mời: Đồng ý / Từ chối (khi họp Sắp tới)
+            const isOwner = !!meeting.organizerIsMe;
+            const isActive = meeting.status === 'Sắp tới' || meeting.status === 'Đã xác nhận';
+
+            btnEdit.classList.toggle('hidden', !(isOwner && isActive));
+            btnCancelM.classList.toggle('hidden', !(isOwner && isActive));
+            btnReject.classList.toggle('hidden', !(!isOwner && meeting.status === 'Sắp tới'));
+            btnAccept.classList.toggle('hidden', !(!isOwner && meeting.status === 'Sắp tới'));
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        // ===== KHUNG NHẬP LÝ DO (dùng chung cho Từ chối & Hủy cuộc họp) =====
+        let reasonMode = 'reject'; // 'reject' = người được mời từ chối | 'cancel' = người tổ chức hủy họp
+
+        function openReasonBox(mode) {
+            reasonMode = mode;
+            const label = document.getElementById('rrLabel');
+            const hint = document.getElementById('rrHint');
+            const btn = document.getElementById('rrSubmitBtn');
+            const input = document.getElementById('rejectReasonInput');
+
+            if (mode === 'cancel') {
+                label.innerHTML = 'Lý do hủy cuộc họp <span style="color:red;">*</span>';
+                hint.innerText = 'Sau khi hủy, hệ thống sẽ gửi Gmail thông báo kèm lý do đến tất cả người tham gia.';
+                btn.innerHTML = '<span>✕</span> Xác nhận hủy cuộc họp';
+                input.placeholder = 'Ví dụ: Khách hàng dời lịch, nội dung họp không còn cần thiết...';
+            } else {
+                label.innerHTML = 'Lý do từ chối tham gia <span style="color:red;">*</span>';
+                hint.innerText = 'Lý do sẽ được gửi qua email đến người tổ chức cuộc họp.';
+                btn.innerHTML = '<span>✕</span> Gửi lý do &amp; Từ chối';
+                input.placeholder = 'Ví dụ: Trùng lịch họp với khách hàng, xin phép vắng mặt buổi này...';
+            }
+
+            input.value = '';
+            document.getElementById('rejectReasonError').style.display = 'none';
+            document.getElementById('rejectReasonBox').classList.remove('hidden');
+            document.getElementById('detailFooterButtons').classList.add('hidden');
+            input.focus();
+        }
+
+        function showRejectReason() { openReasonBox('reject'); }
+
+        function showCancelMeetingReason() { openReasonBox('cancel'); }
+
+        function cancelRejectReason() {
+            document.getElementById('rejectReasonBox').classList.add('hidden');
+            document.getElementById('detailFooterButtons').classList.remove('hidden');
+        }
+
+        // ===== 3. XỬ LÝ TỪ CHỐI / HỦY CUỘC HỌP (gọi API thật) =====
+        async function submitReasonBox() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            if (!reason) {
+                document.getElementById('rejectReasonError').style.display = 'block';
+                document.getElementById('rejectReasonInput').focus();
+                return; // bắt buộc có lý do
+            }
+
+            const meeting = meetings.find(m => m.id === selectedMeetingId);
+            if (!meeting) return;
+
+            const endpoint = reasonMode === 'cancel' ? '/cancel-meeting' : '/reject-meeting';
+            const payload = reasonMode === 'cancel'
+                ? { id: meeting.id, reason }
+                : { id: meeting.id, reason, email: currentUserProfile.email };
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    cancelRejectReason();
+                    closeModal('detailModal');
+                    await loadMeetingsFromDB(); // nạp lại trạng thái mới nhất từ server
+
+                    if (reasonMode === 'cancel') {
+                        alert(`Đã hủy cuộc họp "${meeting.title}".\n` +
+                              `Email thông báo hủy (kèm lý do) đã được gửi qua Gmail đến các người tham gia.`);
+                    } else {
+                        const organizer = document.getElementById('dtOrganizer').innerText;
+                        alert(`Đã từ chối cuộc họp "${meeting.title}".\nLý do của bạn đã được gửi qua email đến người tổ chức: ${organizer}.`);
+                    }
+                } else {
+                    alert(result.message || "Không thể thực hiện thao tác này.");
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Không thể kết nối đến máy chủ!");
+            }
+        }
+
+        // ===== 4. XÁC NHẬN THAM GIA (gọi API thật) =====
+        async function changeStatusActive(newStatus) {
+            if (!selectedMeetingId) return;
+            let meeting = meetings.find(m => m.id === selectedMeetingId);
+            if (!meeting) return;
+
+            try {
+                const response = await fetch('/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: meeting.id,
+                        status: newStatus,
+                        email: currentUserProfile.email
+                    })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    closeModal('detailModal');
+                    await loadMeetingsFromDB();
+                    alert(`Đã cập nhật trạng thái cuộc họp thành: ${newStatus}`);
+                } else {
+                    alert(result.message || "Không thể cập nhật trạng thái.");
+                }
+            } catch (error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Không thể kết nối đến máy chủ!");
+            }
+        }
+
+        function renderMeetingList() {
+            let wrapper = document.getElementById('meetingListWrapper');
+            wrapper.innerHTML = "";
+
+            let filtered = meetings.filter(m => {
+                if (currentFilter === 'all') return true;
+                return m.status === currentFilter;
+            });
+
+            if (filtered.length === 0) {
+                wrapper.innerHTML = `<div style="text-align:center; color:#999; padding:40px;">Không có cuộc họp nào thuộc trạng thái này.</div>`;
+                return;
+            }
+
+            filtered.forEach(m => {
+                let badgeClass = "status-upcoming";
+                if (m.status === 'Đã xác nhận') badgeClass = "status-accepted";
+                if (m.status === 'Đã Kết Thúc') badgeClass = "status-done";
+                if (m.status === 'Đã Hủy') badgeClass = "status-canceled";
+
+                let endHour = m.startHour + m.duration;
+                let dateFormatted = m.date.split('-').reverse().join('/');
+                
+                let div = document.createElement('div');
+                div.className = "meeting-item";
+                div.innerHTML = `
+                    <div class="meeting-info">
+                        <div class="meeting-icon-box">📅</div>
+                        <div class="meeting-details">
+                            <h4>${m.title}</h4>
+                            <div class="meeting-meta">
+                                <span>🕒 ${formatHour(m.startHour)} - ${formatHour(endHour)}</span>
+                                <span>📅 ${dateFormatted}</span>
+                                <span style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📍 ${m.room}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <span class="status-badge ${badgeClass}">${m.status}</span>
+                        <button class="btn-secondary" style="padding:6px 12px; font-size:13px;" onclick="openDetailModal(${m.id})">Xem</button>
+                    </div>
+                `;
+                wrapper.appendChild(div);
+            });
+        }
+
+        function filterMeetings(status, btnElement) {
+            currentFilter = status;
+            let buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderMeetingList();
+        }
+    </script>
+</body>
+</html>
