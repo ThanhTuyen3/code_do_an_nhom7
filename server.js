@@ -7,6 +7,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+const pool = new Pool({
+    connectionString: 'postgres://postgres.droxvmimrvgzrxbkdnrj:Tnguyen@33279@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres',
+    ssl: { rejectUnauthorized: false }
+});
+
 const client = new Client({
     host: 'aws-0-ap-northeast-1.pooler.supabase.com',
     port: '5432',
